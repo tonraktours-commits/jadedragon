@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadedragon Admin Panel - ผู้ดูแลระบบ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #e74c3c;
+            --primary-dark: #c0392b;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --text-dark: #2c3e50;
+            --text-light: #666;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-color: #ddd;
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: var(--text-dark);
+            color: white;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-logo span {
+            color: var(--primary-color);
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: #bdc3c7;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav li {
+            margin: 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-left: 2rem;
+        }
+
+        .sidebar-nav a.active {
+            background: var(--primary-color);
+            color: white;
+            border-left: 3px solid white;
+        }
+
+        .sidebar-nav a i {
+            font-size: 1.2rem;
+            width: 25px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-footer button {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-footer button:hover {
+            background: #c0392b;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .top-header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .user-details h3 {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+
+        .user-details p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stat-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .stat-card.info {
+            border-left-color: var(--secondary-color);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            color: var(--success-color);
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.down {
+            color: var(--danger-color);
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--bg-light);
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        table thead {
+            background: var(--bg-light);
+        }
+
+        table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: var(--shadow-hover);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            color: var(--text-dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        /* Charts */
+        .chart-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+        }
+
+        .chart-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                max-height: 60px;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .top-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-right {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            table th,
+            table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: var(--shadow-hover);
+            z-index: 3000;
+        }
+
+        .toast.error {
+            background: var(--danger-color);
+        }
+
+        .toast.warning {
+            background: var(--warning-color);
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--bg-light);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Search */
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .search-box button {
+            padding: 0.8rem 1.5rem;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 0.8rem;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover {
+            background: var(--bg-light);
+        }
+
+        .pagination button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">Jade<span>Dragon</span></div>
+            <div class="sidebar-subtitle">Admin Panel</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <li><a href="#" onclick="switchSection('dashboard')" class="nav-link active">📊 Dashboard</a></li>
+            <li><a href="#" onclick="switchSection('bookings')" class="nav-link">📋 การจอง</a></li>
+            <li><a href="#" onclick="switchSection('users')" class="nav-link">👥 ผู้ใช้</a></li>
+            <li><a href="#" onclick="switchSection('services')" class="nav-link">🎯 บริการ</a></li>
+            <li><a href="#" onclick="switchSection('portfolio')" class="nav-link">🖼️ ผลงาน</a></li>
+            <li><a href="#" onclick="switchSection('content')" class="nav-link">📝 เนื้อหา</a></li>
+            <li><a href="#" onclick="switchSection('analytics')" class="nav-link">📈 สถิติ</a></li>
+            <li><a href="#" onclick="switchSection('settings')" class="nav-link">⚙️ ตั้งค่า</a></li>
+            <li><a href="#" onclick="switchSection('logs')" class="nav-link">📜 Logs</a></li>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button onclick="handleLogout()">🚪 ออกจากระบบ</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="top-header">
+            <div class="header-title">
+                <h1 id="pageTitle">Dashboard</h1>
+                <p id="pageSubtitle">ยินดีต้อนรับสู่ Admin Panel</p>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div class="user-avatar" id="adminAvatar">A</div>
+                    <div class="user-details">
+                        <h3 id="adminName">Admin</h3>
+                        <p id="adminRole">ผู้ดูแลระบบ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h2>Dashboard</h2>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-label">การจองทั้งหมด</div>
+                    <div class="stat-value" id="totalBookings">0</div>
+                    <div class="stat-change">↑ 12% จากเดือนที่แล้ว</div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">การจองที่ยืนยัน</div>
+                    <div class="stat-value" id="confirmedBookings">0</div>
+                    <div class="stat-change">↑ 8% จากเดือนที่แล้ว</div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-label">การจองที่รอ</div>
+                    <div class="stat-value" id="pendingBookings">0</div>
+                    <div class="stat-change down">↓ 5% จากเดือนที่แล้ว</div>
+                </div>
+
+                <div class="stat-card info">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">สมาชิกทั้งหมด</div>
+                    <div class="stat-value" id="totalUsers">0</div>
+                    <div class="stat-change">↑ 15% จากเดือนที่แล้ว</div>
+                </div>
+            </div>
+
+            <!-- Recent Bookings -->
+            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: var(--shadow); margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem;">การจองล่าสุด</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ชื่อ</th>
+                                <th>ประเภทงาน</th>
+                                <th>วันที่</th>
+                                <th>สถานะ</th>
+                                <th>การกระทำ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentBookingsTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: #999;">ไม่มีข้อมูล</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Section -->
+        <div id="bookings" class="content-section">
+            <div class="section-header">
+                <h2>จัดการการจอง</h2>
+                <button class="btn btn-primary" onclick="openBookingModal()">➕ เพิ่มการจอง</button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="bookingSearch" placeholder="ค้นหาการจอง...">
+                <button onclick="searchBookings()">🔍 ค้นหา</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ชื่อ</th>
+                            <th>อีเมล</th>
+                            <th>ประเภทงาน</th>
+                            <th>วันที่</th>
+                            <th>สถานะ</th>
+                            <th>การกระทำ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTable">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #999;">ไม่มีข้อมูล</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users" class="content-section">
+            <div class="section-header">
+                <h2>จัดการผู้ใช้</h2>
+                <button class="btn btn-primary" onclick="openUserModal()">➕ เพิ่มผู้ใช้</button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="userSearch" placeholder="ค้นหาผู้ใช้...">
+                <button onclick="searchUsers()">🔍 ค้นหา</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ชื่อ</th>
+                            <th>อีเมล</th>
+                            <th>เบอร์โทร</th>
+                            <th>สถานะ</th>
+                            <th>วันที่สมัคร</th>
+                            <th>การกระทำ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #999;">ไม่มีข้อมูล</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <div id="services" class="content-section">
+            <div class="section-header">
+                <h2>จัดการบริการ</h2>
+                <button class="btn btn-primary" onclick="openServiceModal()">➕ เพิ่มบริการ</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ไอคอน</th>
+                            <th>ชื่อบริการ</th>
+                            <th>คำอธิบาย</th>
+                            <th>สถานะ</th>
+                            <th>การกระทำ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="servicesTable">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #999;">ไม่มีข้อมูล</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Portfolio Section -->
+        <div id="portfolio" class="content-section">
+            <div class="section-header">
+                <h2>จัดการผลงาน</h2>
+                <button class="btn btn-primary" onclick="openPortfolioModal()">➕ เพิ่มผลงาน</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ไอคอน</th>
+                            <th>ชื่องาน</th>
+                            <th>คำอธิบาย</th>
+                            <th>สถานะ</th>
+                            <th>การกระทำ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="portfolioTable">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #999;">ไม่มีข้อมูล</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div id="content" class="content-section">
+            <div class="section-header">
+                <h2>จัดการเนื้อหา</h2>
+            </div>
+
+            <form onsubmit="saveContent(event)">
+                <div class="form-group">
+                    <label>ชื่อบริษัท</label>
+                    <input type="text" id="contentBusinessName">
+                </div>
+
+                <div class="form-group">
+                    <label>สโลแกน</label>
+                    <input type="text" id="contentSlogan">
+                </div>
+
+                <div class="form-group">
+                    <label>คำอธิบายบริษัท</label>
+                    <textarea id="contentDescription" rows="5"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>เบอร์โทรศัพท์</label>
+                    <input type="tel" id="contentPhone">
+                </div>
+
+                <div class="form-group">
+                    <label>อีเมล</label>
+                    <input type="email" id="contentEmail">
+                </div>
+
+                <div class="form-group">
+                    <label>ที่ตั้ง</label>
+                    <input type="text" id="contentLocation">
+                </div>
+
+                <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+            </form>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics" class="content-section">
+            <div class="section-header">
+                <h2>สถิติและรายงาน</h2>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">อัตราการจองเฉลี่ย</div>
+                    <div class="stat-value">85%</div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">รายได้เดือนนี้</div>
+                    <div class="stat-value">฿50,000</div>
+                </div>
+
+                <div class="stat-card info">
+                    <div class="stat-icon">📱</div>
+                    <div class="stat-label">ผู้เข้าชมเว็บไซต์</div>
+                    <div class="stat-value">1,250</div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-label">คะแนนเฉลี่ย</div>
+                    <div class="stat-value">4.8</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">📈 แนวโน้มการจองรายเดือน</div>
+                <canvas id="bookingChart" style="height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings" class="content-section">
+            <div class="section-header">
+                <h2>ตั้งค่าระบบ</h2>
+            </div>
+
+            <form onsubmit="saveSettings(event)">
+                <h3 style="margin-bottom: 1rem; color: var(--text-dark);">ตั้งค่าทั่วไป</h3>
+
+                <div class="form-group">
+                    <label>ชื่อเว็บไซต์</label>
+                    <input type="text" id="settingsWebsiteName">
+                </div>
+
+                <div class="form-group">
+                    <label>URL เว็บไซต์</label>
+                    <input type="url" id="settingsWebsiteUrl">
+                </div>
+
+                <div class="form-group">
+                    <label>อีเมลผู้ดูแลระบบ</label>
+                    <input type="email" id="settingsAdminEmail">
+                </div>
+
+                <h3 style="margin: 2rem 0 1rem; color: var(--text-dark);">ตั้งค่าความปลอดภัย</h3>
+
+                <div class="form-group">
+                    <label>เปิดใช้งาน 2FA (Two-Factor Authentication)</label>
+                    <input type="checkbox" id="settings2FA">
+                </div>
+
+                <div class="form-group">
+                    <label>เปิดใช้งาน HTTPS</label>
+                    <input type="checkbox" id="settingsHttps" checked>
+                </div>
+
+                <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+            </form>
+        </div>
+
+        <!-- Logs Section -->
+        <div id="logs" class="content-section">
+            <div class="section-header">
+                <h2>บันทึกการทำงาน (Logs)</h2>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="logSearch" placeholder="ค้นหา logs...">
+                <button onclick="searchLogs()">🔍 ค้นหา</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>เวลา</th>
+                            <th>ผู้ใช้</th>
+                            <th>การกระทำ</th>
+                            <th>รายละเอียด</th>
+                            <th>สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTable">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #999;">ไม่มีข้อมูล</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="bookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>จัดการการจอง</h2>
+                <button class="close-btn" onclick="closeModal('bookingModal')">✕</button>
+            </div>
+            <form onsubmit="saveBooking(event)">
+                <div class="form-group">
+                    <label>ชื่อ</label>
+                    <input type="text" id="modalBookingName" required>
+                </div>
+                <div class="form-group">
+                    <label>อีเมล</label>
+                    <input type="email" id="modalBookingEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>เบอร์โทรศัพท์</label>
+                    <input type="tel" id="modalBookingPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>ประเภทงาน</label>
+                    <select id="modalBookingType" required>
+                        <option value="">-- เลือกประเภทงาน --</option>
+                        <option value="wedding">งานแต่งงาน</option>
+                        <option value="party">งานเลี้ยง</option>
+                        <option value="corporate">งานธุรกิจ</option>
+                        <option value="graduation">งานสำเร็จการศึกษา</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>วันที่</label>
+                    <input type="date" id="modalBookingDate" required>
+                </div>
+                <div class="form-group">
+                    <label>สถานะ</label>
+                    <select id="modalBookingStatus" required>
+                        <option value="pending">รอการยืนยัน</option>
+                        <option value="confirmed">ยืนยันแล้ว</option>
+                        <option value="cancelled">ยกเลิก</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">บันทึก</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Default Admin Data
+        const adminData = {
+            name: 'Admin',
+            email: 'admin@jadedragon.com',
+            role: 'ผู้ดูแลระบบ'
+        };
+
+        let currentSection = 'dashboard';
+        let bookings = JSON.parse(localStorage.getItem('jadedragonBookings')) || [];
+        let users = JSON.parse(localStorage.getItem('jadedragonUsers')) || [];
+        let services = JSON.parse(localStorage.getItem('jadedragonServices')) || [];
+        let portfolio = JSON.parse(localStorage.getItem('jadedragonPortfolio')) || [];
+        let logs = JSON.parse(localStorage.getItem('jadedragonLogs')) || [];
+
+        function init() {
+            updateAdminInfo();
+            loadDashboard();
+            loadBookings();
+            loadUsers();
+            loadServices();
+            loadPortfolio();
+        }
+
+        function updateAdminInfo() {
+            document.getElementById('adminName').textContent = adminData.name;
+            document.getElementById('adminRole').textContent = adminData.role;
+            document.getElementById('adminAvatar').textContent = adminData.name.charAt(0).toUpperCase();
+        }
+
+        function switchSection(section) {
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            event.target.classList.add('active');
+            currentSection = section;
+
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                bookings: 'จัดการการจอง',
+                users: 'จัดการผู้ใช้',
+                services: 'จัดการบริการ',
+                portfolio: 'จัดการผลงาน',
+                content: 'จัดการเนื้อหา',
+                analytics: 'สถิติและรายงาน',
+                settings: 'ตั้งค่าระบบ',
+                logs: 'บันทึกการทำงาน'
+            };
+            document.getElementById('pageTitle').textContent = titles[section];
+            document.getElementById('pageSubtitle').textContent = `จัดการ${titles[section]}`;
+        }
+
+        function loadDashboard() {
+            const totalBookings = bookings.length;
+            const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
+            const pendingBookings = bookings.filter(b => b.status === 'pending').length;
+            const totalUsers = users.length;
+
+            document.getElementById('totalBookings').textContent = totalBookings;
+            document.getElementById('confirmedBookings').textContent = confirmedBookings;
+            document.getElementById('pendingBookings').textContent = pendingBookings;
+            document.getElementById('totalUsers').textContent = totalUsers;
+
+            // Load recent bookings
+            const recentBookings = bookings.slice(-5).reverse();
+            const table = document.getElementById('recentBookingsTable');
+            table.innerHTML = recentBookings.map(b => `
+                <tr>
+                    <td>${b.name}</td>
+                    <td>${b.eventType}</td>
+                    <td>${b.date}</td>
+                    <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+                    <td>
+                        <button class="btn btn-small btn-secondary" onclick="editBooking(${b.id})">แก้ไข</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            if (recentBookings.length === 0) {
+                table.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">ไม่มีข้อมูล</td></tr>';
+            }
+        }
+
+        function loadBookings() {
+            const table = document.getElementById('bookingsTable');
+            table.innerHTML = bookings.map(b => `
+                <tr>
+                    <td>${b.id}</td>
+                    <td>${b.name}</td>
+                    <td>${b.email}</td>
+                    <td>${b.eventType}</td>
+                    <td>${b.date}</td>
+                    <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+                    <td>
+                        <button class="btn btn-small btn-secondary" onclick="editBooking(${b.id})">แก้ไข</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteBooking(${b.id})">ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            if (bookings.length === 0) {
+                table.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">ไม่มีข้อมูล</td></tr>';
+            }
+        }
+
+        function loadUsers() {
+            const table = document.getElementById('usersTable');
+            table.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>${u.phone}</td>
+                    <td><span class="status-badge status-active">ใช้งาน</span></td>
+                    <td>${u.joinDate}</td>
+                    <td>
+                        <button class="btn btn-small btn-secondary" onclick="editUser(${u.id})">แก้ไข</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteUser(${u.id})">ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            if (users.length === 0) {
+                table.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">ไม่มีข้อมูล</td></tr>';
+            }
+        }
+
+        function loadServices() {
+            const appData = JSON.parse(localStorage.getItem('jadedragonData')) || {};
+            const services = appData.services || [];
+            const table = document.getElementById('servicesTable');
+            table.innerHTML = services.map((s, i) => `
+                <tr>
+                    <td>${s.icon}</td>
+                    <td>${s.name}</td>
+                    <td>${s.description}</td>
+                    <td><span class="status-badge status-active">ใช้งาน</span></td>
+                    <td>
+                        <button class="btn btn-small btn-secondary" onclick="editService(${i})">แก้ไข</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteService(${i})">ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            if (services.length === 0) {
+                table.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">ไม่มีข้อมูล</td></tr>';
+            }
+        }
+
+        function loadPortfolio() {
+            const appData = JSON.parse(localStorage.getItem('jadedragonData')) || {};
+            const portfolio = appData.portfolio || [];
+            const table = document.getElementById('portfolioTable');
+            table.innerHTML = portfolio.map((p, i) => `
+                <tr>
+                    <td>${p.icon}</td>
+                    <td>${p.title}</td>
+                    <td>${p.description}</td>
+                    <td><span class="status-badge status-active">ใช้งาน</span></td>
+                    <td>
+                        <button class="btn btn-small btn-secondary" onclick="editPortfolio(${i})">แก้ไข</button>
+                        <button class="btn btn-small btn-danger" onclick="deletePortfolio(${i})">ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            if (portfolio.length === 0) {
+                table.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">ไม่มีข้อมูล</td></tr>';
+            }
+        }
+
+        function openBookingModal() {
+            document.getElementById('bookingModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function saveBooking(event) {
+            event.preventDefault();
+            showToast('บันทึกการจองสำเร็จ!', 'success');
+            closeModal('bookingModal');
+            loadBookings();
+            loadDashboard();
+        }
+
+        function deleteBooking(id) {
+            if (confirm('คุณแน่ใจหรือว่าต้องการลบการจองนี้?')) {
+                bookings = bookings.filter(b => b.id !== id);
+                localStorage.setItem('jadedragonBookings', JSON.stringify(bookings));
+                showToast('ลบการจองสำเร็จ!', 'success');
+                loadBookings();
+                loadDashboard();
+            }
+        }
+
+        function saveContent(event) {
+            event.preventDefault();
+            showToast('บันทึกเนื้อหาสำเร็จ!', 'success');
+        }
+
+        function saveSettings(event) {
+            event.preventDefault();
+            showToast('บันทึกตั้งค่าสำเร็จ!', 'success');
+        }
+
+        function handleLogout() {
+            if (confirm('คุณแน่ใจหรือว่าต้องการออกจากระบบ?')) {
+                localStorage.removeItem('adminUser');
+                window.location.href = '/';
+                showToast('ออกจากระบบสำเร็จ', 'success');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+
+        function openUserModal() {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function openServiceModal() {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function openPortfolioModal() {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function searchBookings() {
+            showToast('ฟีเจอร์ค้นหากำลังพัฒนา', 'warning');
+        }
+
+        function searchUsers() {
+            showToast('ฟีเจอร์ค้นหากำลังพัฒนา', 'warning');
+        }
+
+        function searchLogs() {
+            showToast('ฟีเจอร์ค้นหากำลังพัฒนา', 'warning');
+        }
+
+        function editBooking(id) {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function deleteUser(id) {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function editUser(id) {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function editService(i) {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function deleteService(i) {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function editPortfolio(i) {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        function deletePortfolio(i) {
+            showToast('ฟีเจอร์นี้กำลังพัฒนา', 'warning');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

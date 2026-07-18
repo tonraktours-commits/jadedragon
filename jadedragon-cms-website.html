@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadedragon Event Organizer - CMS Website</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #e74c3c;
+            --primary-dark: #c0392b;
+            --text-dark: #2c3e50;
+            --text-light: #666;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Admin Mode Toggle */
+        .admin-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+
+        .admin-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-content {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 1rem;
+        }
+
+        .admin-header h2 {
+            color: var(--text-dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--bg-light);
+        }
+
+        .admin-tab {
+            background: none;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .admin-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            margin-left: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* Main Website */
+        header {
+            background: var(--bg-white);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 7rem 0;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 5rem 0;
+            background: var(--bg-white);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--text-dark);
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--primary-color);
+            margin: 1rem auto 0;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-top: 3px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-top-color: var(--primary-color);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .service-card h3 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .service-card p {
+            color: var(--text-light);
+        }
+
+        /* Portfolio Section */
+        .portfolio {
+            padding: 5rem 0;
+            background: var(--bg-light);
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .portfolio-item {
+            background: var(--bg-white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-item:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .portfolio-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .portfolio-info {
+            padding: 1.5rem;
+        }
+
+        .portfolio-info h3 {
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .portfolio-info p {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        /* Booking Section */
+        .booking {
+            padding: 5rem 0;
+            background: var(--bg-white);
+        }
+
+        .booking-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 5rem 0;
+            background: var(--text-dark);
+            color: white;
+        }
+
+        .contact .section-title {
+            color: white;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .contact-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 8px;
+        }
+
+        .contact-item h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .contact-item a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .contact-item a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Footer */
+        footer {
+            background: #1a252f;
+            color: #bdc3c7;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .admin-content {
+                width: 95%;
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: var(--shadow-hover);
+            z-index: 3000;
+        }
+
+        .toast.success {
+            background: #27ae60;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        .item-list {
+            margin-top: 1rem;
+        }
+
+        .item-row {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-row button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Toggle -->
+    <div class="admin-toggle">
+        <button class="admin-btn" onclick="toggleAdminPanel()">🔧 Admin</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>Admin Dashboard</h2>
+                <button class="close-btn" onclick="toggleAdminPanel()">✕</button>
+            </div>
+
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('business')">ข้อมูลธุรกิจ</button>
+                <button class="admin-tab" onclick="switchAdminTab('services')">บริการ</button>
+                <button class="admin-tab" onclick="switchAdminTab('portfolio')">ผลงาน</button>
+                <button class="admin-tab" onclick="switchAdminTab('contact')">ติดต่อ</button>
+            </div>
+
+            <!-- Business Info Tab -->
+            <div class="admin-section active" id="business-tab">
+                <h3>ข้อมูลธุรกิจ</h3>
+                <div class="form-group">
+                    <label>ชื่อบริษัท</label>
+                    <input type="text" id="businessName" placeholder="ชื่อบริษัท">
+                </div>
+                <div class="form-group">
+                    <label>สโลแกน</label>
+                    <input type="text" id="businessSlogan" placeholder="สโลแกน">
+                </div>
+                <div class="form-group">
+                    <label>คำอธิบาย</label>
+                    <textarea id="businessDescription" placeholder="คำอธิบายบริษัท"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="saveBusinessInfo()">บันทึก</button>
+            </div>
+
+            <!-- Services Tab -->
+            <div class="admin-section" id="services-tab">
+                <h3>จัดการบริการ</h3>
+                <div class="form-group">
+                    <label>ไอคอน (emoji)</label>
+                    <input type="text" id="serviceIcon" placeholder="เช่น 🎬">
+                </div>
+                <div class="form-group">
+                    <label>ชื่อบริการ</label>
+                    <input type="text" id="serviceName" placeholder="ชื่อบริการ">
+                </div>
+                <div class="form-group">
+                    <label>คำอธิบาย</label>
+                    <textarea id="serviceDescription" placeholder="คำอธิบายบริการ"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="addService()">เพิ่มบริการ</button>
+                <div class="item-list" id="servicesList"></div>
+            </div>
+
+            <!-- Portfolio Tab -->
+            <div class="admin-section" id="portfolio-tab">
+                <h3>จัดการผลงาน</h3>
+                <div class="form-group">
+                    <label>ไอคอน (emoji)</label>
+                    <input type="text" id="portfolioIcon" placeholder="เช่น 🎉">
+                </div>
+                <div class="form-group">
+                    <label>ชื่องาน</label>
+                    <input type="text" id="portfolioTitle" placeholder="ชื่องาน">
+                </div>
+                <div class="form-group">
+                    <label>คำอธิบาย</label>
+                    <textarea id="portfolioDescription" placeholder="คำอธิบายงาน"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="addPortfolio()">เพิ่มผลงาน</button>
+                <div class="item-list" id="portfolioList"></div>
+            </div>
+
+            <!-- Contact Tab -->
+            <div class="admin-section" id="contact-tab">
+                <h3>ข้อมูลติดต่อ</h3>
+                <div class="form-group">
+                    <label>เบอร์โทรศัพท์</label>
+                    <input type="tel" id="contactPhone" placeholder="+66 82 113 1282">
+                </div>
+                <div class="form-group">
+                    <label>อีเมล</label>
+                    <input type="email" id="contactEmail" placeholder="email@example.com">
+                </div>
+                <div class="form-group">
+                    <label>ที่ตั้ง</label>
+                    <input type="text" id="contactLocation" placeholder="Surat Thani, Thailand">
+                </div>
+                <button class="btn btn-primary" onclick="saveContactInfo()">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Jade<span>Dragon</span></div>
+                <nav>
+                    <ul>
+                        <li><a href="#home">หน้าแรก</a></li>
+                        <li><a href="#services">บริการ</a></li>
+                        <li><a href="#portfolio">ผลงาน</a></li>
+                        <li><a href="#booking">จองบริการ</a></li>
+                        <li><a href="#contact">ติดต่อ</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 id="heroTitle">จัดงานอีเว้นท์ที่สมบูรณ์แบบ</h1>
+                <p id="heroSubtitle">ตอบโจทย์ความพอใจของลูกค้า ด้วยงานคุณภาพจากพวกเรา</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="document.getElementById('booking').scrollIntoView({behavior: 'smooth'})">จองบริการ</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('portfolio').scrollIntoView({behavior: 'smooth'})">ดูผลงาน</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <h2 class="section-title">บริการของเรา</h2>
+            <div class="services-grid" id="servicesGrid"></div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section class="portfolio" id="portfolio">
+        <div class="container">
+            <h2 class="section-title">ผลงานของเรา</h2>
+            <div class="portfolio-grid" id="portfolioGrid"></div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section class="booking" id="booking">
+        <div class="container">
+            <h2 class="section-title">จองบริการของเรา</h2>
+            <form class="booking-form" onsubmit="handleBooking(event)">
+                <div class="form-group">
+                    <label>ชื่อ-นามสกุล *</label>
+                    <input type="text" id="bookingName" required>
+                </div>
+                <div class="form-group">
+                    <label>อีเมล *</label>
+                    <input type="email" id="bookingEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>เบอร์โทรศัพท์ *</label>
+                    <input type="tel" id="bookingPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>ประเภทงาน *</label>
+                    <select id="bookingType" required>
+                        <option value="">-- เลือกประเภทงาน --</option>
+                        <option value="wedding">งานแต่งงาน</option>
+                        <option value="party">งานเลี้ยง</option>
+                        <option value="corporate">งานธุรกิจ</option>
+                        <option value="graduation">งานสำเร็จการศึกษา</option>
+                        <option value="other">อื่น ๆ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>วันที่ต้องการจัดงาน *</label>
+                    <input type="date" id="bookingDate" required>
+                </div>
+                <div class="form-group">
+                    <label>รายละเอียดเพิ่มเติม</label>
+                    <textarea id="bookingDetails" placeholder="บอกเราเกี่ยวกับงานของคุณ..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">ส่งคำขอจอง</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="section-title">ติดต่อเรา</h2>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <h3>📞 โทรศัพท์</h3>
+                    <p><a href="tel:+66821131282" id="contactPhoneLink">+66 82 113 1282</a></p>
+                </div>
+                <div class="contact-item">
+                    <h3>✉️ อีเมล</h3>
+                    <p><a href="mailto:Jadedragon.organizer@gmail.com" id="contactEmailLink">Jadedragon.organizer@gmail.com</a></p>
+                </div>
+                <div class="contact-item">
+                    <h3>📍 ที่ตั้ง</h3>
+                    <p id="contactLocationText">Surat Thani, Thailand</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Jadedragon Event Organizer. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Default Data
+        const defaultData = {
+            business: {
+                name: 'Jadedragon Event Organizer',
+                slogan: 'ตอบโจทย์ความพอใจของลูกค้า ด้วยงานคุณภาพจากพวกเรา',
+                description: 'บริษัทจัดงานอีเว้นท์ที่มีประสบการณ์มากกว่า 10 ปี'
+            },
+            services: [
+                { icon: '🎬', name: 'วิดีโอและการถ่ายภาพ', description: 'บันทึกภาพและวิดีโอคุณภาพสูง พร้อมตัดต่อและไฮไลท์' },
+                { icon: '🎪', name: 'จัดงานเต็มรูปแบบ', description: 'ออกแบบและจัดการงานทุกประเภท ตั้งแต่เริ่มต้นถึงจบสิ้น' },
+                { icon: '📡', name: 'ถ่ายทอดสดออนไลน์', description: 'ถ่ายทอดสดงานของคุณไปยังผู้ชมทั่วโลก' },
+                { icon: '🎨', name: 'ออกแบบและตกแต่ง', description: 'ออกแบบสถานที่ที่สวยงามและน่าจดจำ' },
+                { icon: '🎤', name: 'ระบบเสียงและแสง', description: 'ระบบเสียงและแสงมืออาชีพสำหรับงานของคุณ' },
+                { icon: '📊', name: 'จัดการโครงการ', description: 'จัดการทุกด้านของงานเพื่อให้ราบรื่น' }
+            ],
+            portfolio: [
+                { icon: '🎉', title: 'งานเลี้ยงสังสรรค์', description: 'งานเลี้ยงสังสรรค์ขนาดใหญ่ 500 คน' },
+                { icon: '💒', title: 'งานแต่งงาน', description: 'งานแต่งงานหรูหราที่ศูนย์ประชุม' },
+                { icon: '🎓', title: 'งานสำเร็จการศึกษา', description: 'งานสำเร็จการศึกษาของมหาวิทยาลัย' },
+                { icon: '🏢', title: 'งานสัมมนาธุรกิจ', description: 'งานสัมมนาและประชุมธุรกิจ' },
+                { icon: '🎭', title: 'งานแสดงศิลป์', description: 'งานแสดงศิลป์และการแสดงดนตรี' },
+                { icon: '🎪', title: 'งานกีฬา', description: 'งานกีฬาและการแข่งขัน' }
+            ],
+            contact: {
+                phone: '+66 82 113 1282',
+                email: 'Jadedragon.organizer@gmail.com',
+                location: 'Surat Thani, Thailand'
+            }
+        };
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('jadedragonData');
+            return saved ? JSON.parse(saved) : defaultData;
+        }
+
+        // Save data to localStorage
+        function saveData(data) {
+            localStorage.setItem('jadedragonData', JSON.stringify(data));
+            showToast('บันทึกสำเร็จ!', 'success');
+        }
+
+        let appData = loadData();
+
+        // Initialize
+        function init() {
+            renderServices();
+            renderPortfolio();
+            loadAdminData();
+        }
+
+        // Render Services
+        function renderServices() {
+            const grid = document.getElementById('servicesGrid');
+            grid.innerHTML = appData.services.map((service, index) => `
+                <div class="service-card fade-in">
+                    <div class="service-icon">${service.icon}</div>
+                    <h3>${service.name}</h3>
+                    <p>${service.description}</p>
+                </div>
+            `).join('');
+        }
+
+        // Render Portfolio
+        function renderPortfolio() {
+            const grid = document.getElementById('portfolioGrid');
+            grid.innerHTML = appData.portfolio.map((item, index) => `
+                <div class="portfolio-item fade-in">
+                    <div class="portfolio-image">${item.icon}</div>
+                    <div class="portfolio-info">
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Admin Functions
+        function toggleAdminPanel() {
+            document.getElementById('adminPanel').classList.toggle('active');
+        }
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function loadAdminData() {
+            document.getElementById('businessName').value = appData.business.name;
+            document.getElementById('businessSlogan').value = appData.business.slogan;
+            document.getElementById('businessDescription').value = appData.business.description;
+            document.getElementById('contactPhone').value = appData.contact.phone;
+            document.getElementById('contactEmail').value = appData.contact.email;
+            document.getElementById('contactLocation').value = appData.contact.location;
+            renderServicesList();
+            renderPortfolioList();
+        }
+
+        function saveBusinessInfo() {
+            appData.business.name = document.getElementById('businessName').value;
+            appData.business.slogan = document.getElementById('businessSlogan').value;
+            appData.business.description = document.getElementById('businessDescription').value;
+            document.getElementById('heroTitle').textContent = appData.business.slogan;
+            saveData(appData);
+        }
+
+        function addService() {
+            const icon = document.getElementById('serviceIcon').value;
+            const name = document.getElementById('serviceName').value;
+            const description = document.getElementById('serviceDescription').value;
+
+            if (!icon || !name || !description) {
+                showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                return;
+            }
+
+            appData.services.push({ icon, name, description });
+            saveData(appData);
+            renderServices();
+            renderServicesList();
+            document.getElementById('serviceIcon').value = '';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceDescription').value = '';
+        }
+
+        function deleteService(index) {
+            appData.services.splice(index, 1);
+            saveData(appData);
+            renderServices();
+            renderServicesList();
+        }
+
+        function renderServicesList() {
+            const list = document.getElementById('servicesList');
+            list.innerHTML = appData.services.map((service, index) => `
+                <div class="item-row">
+                    <span>${service.icon} ${service.name}</span>
+                    <button class="btn btn-danger" onclick="deleteService(${index})">ลบ</button>
+                </div>
+            `).join('');
+        }
+
+        function addPortfolio() {
+            const icon = document.getElementById('portfolioIcon').value;
+            const title = document.getElementById('portfolioTitle').value;
+            const description = document.getElementById('portfolioDescription').value;
+
+            if (!icon || !title || !description) {
+                showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                return;
+            }
+
+            appData.portfolio.push({ icon, title, description });
+            saveData(appData);
+            renderPortfolio();
+            renderPortfolioList();
+            document.getElementById('portfolioIcon').value = '';
+            document.getElementById('portfolioTitle').value = '';
+            document.getElementById('portfolioDescription').value = '';
+        }
+
+        function deletePortfolio(index) {
+            appData.portfolio.splice(index, 1);
+            saveData(appData);
+            renderPortfolio();
+            renderPortfolioList();
+        }
+
+        function renderPortfolioList() {
+            const list = document.getElementById('portfolioList');
+            list.innerHTML = appData.portfolio.map((item, index) => `
+                <div class="item-row">
+                    <span>${item.icon} ${item.title}</span>
+                    <button class="btn btn-danger" onclick="deletePortfolio(${index})">ลบ</button>
+                </div>
+            `).join('');
+        }
+
+        function saveContactInfo() {
+            appData.contact.phone = document.getElementById('contactPhone').value;
+            appData.contact.email = document.getElementById('contactEmail').value;
+            appData.contact.location = document.getElementById('contactLocation').value;
+            document.getElementById('contactPhoneLink').href = 'tel:' + appData.contact.phone;
+            document.getElementById('contactPhoneLink').textContent = appData.contact.phone;
+            document.getElementById('contactEmailLink').href = 'mailto:' + appData.contact.email;
+            document.getElementById('contactEmailLink').textContent = appData.contact.email;
+            document.getElementById('contactLocationText').textContent = appData.contact.location;
+            saveData(appData);
+        }
+
+        function handleBooking(event) {
+            event.preventDefault();
+            const name = document.getElementById('bookingName').value;
+            const email = document.getElementById('bookingEmail').value;
+            const phone = document.getElementById('bookingPhone').value;
+            const type = document.getElementById('bookingType').value;
+            const date = document.getElementById('bookingDate').value;
+            const details = document.getElementById('bookingDetails').value;
+
+            const message = `สวัสดีค่ะ ${appData.business.name}
+
+ฉันต้องการจองบริการจัดงาน
+
+ชื่อ: ${name}
+อีเมล: ${email}
+เบอร์โทร: ${phone}
+ประเภทงาน: ${type}
+วันที่ต้องการจัดงาน: ${date}
+รายละเอียด: ${details || 'ไม่มี'}
+
+ขอบคุณค่ะ`;
+
+            const whatsappUrl = `https://wa.me/${appData.contact.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            event.target.reset();
+            showToast('ขอบคุณที่ส่งคำขอจอง!', 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Scroll Animation
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
